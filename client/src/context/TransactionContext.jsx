@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
-import { ethers } from "ethers";
 import axios from "axios";
+import { ethers } from "ethers";
+import React, { useEffect, useState } from "react";
 
 import { fileABI, fileAddress } from "../utils/constants";
 
@@ -31,7 +31,7 @@ export const TransactionProvider = ({ children }) => {
     hashFile: "",
   });
   const [formDataFile, setFormDataFile] = useState({
-    file:"",
+    file: "",
     pinnedMetadata: "",
     pinataOptions: "",
   });
@@ -47,12 +47,12 @@ export const TransactionProvider = ({ children }) => {
     setFormData((prevState) => ({ ...prevState, [name]: e.target.value }));
   };
 
-  const setFileData = (name,value)=>{
-    setFormDataFile((prevState)=>({...prevState,[name]: value}));
+  const setFileData = (name, value) => {
+    setFormDataFile((prevState) => ({ ...prevState, [name]: value }));
   }
 
-  const setHashFile = (hashFileInput)=>{
-    setFormData((prevState)=>({...prevState,["hashFile"]: hashFileInput}));
+  const setHashFile = (hashFileInput) => {
+    setFormData((prevState) => ({ ...prevState, ["hashFile"]: hashFileInput }));
   }
 
   const captureFile = (event) => {
@@ -65,13 +65,13 @@ export const TransactionProvider = ({ children }) => {
   };
 
   const handleSubmit = async (e) => {
-    formDataFile2.append('file',imageFile);
+    formDataFile2.append('file', imageFile);
 
     const metadata = JSON.stringify({
       name: imageName,
     });
     formDataFile2.append('pinnedMetadata', metadata);
-    
+
     const options = JSON.stringify({
       cidVersion: 0,
     })
@@ -92,16 +92,16 @@ export const TransactionProvider = ({ children }) => {
     setHashFile(resFile.data.IpfsHash);
 
     const { addressTo, amount, keyword, message, hashFile } = formData;
-    
+
 
     e.preventDefault();
 
-    if (!addressTo || !amount || !keyword || !message || !hashFile ) return;
+    if (!addressTo || !amount || !keyword || !message || !hashFile) return;
 
     sendTransaction();
   };
 
-  
+
   const getAllTransactions = async () => {
     try {
       if (!ethereum) return alert("Please install Metamask first");
@@ -111,17 +111,18 @@ export const TransactionProvider = ({ children }) => {
 
       const structuredTransactions = availableTransactions.map(
         (transaction) =>
-          ({
-            addressTo: transaction.receiver,
-            addressFrom: transaction.sender,
-            timestamp: new Date(
-              transaction.timestamp.toNumber() * 1000
-            ).toLocaleString(),
-            message: transaction.message,
-            keyword: transaction.keyword,
-            amount: parseInt(transaction.amount._hex) / 10 ** 18,
-            hashFile: transaction.file,
-          })
+        ({
+          addressTo: transaction.receiver,
+          addressFrom: transaction.sender,
+          timestamp: new Date(
+            transaction.timestamp.toNumber() * 1000
+          ).toLocaleString(),
+          message: transaction.message,
+          keyword: transaction.keyword,
+          amount: parseInt(transaction.amount._hex) / 10 ** 18,
+          hashFile: transaction.file,
+          isValid: transaction.isValid,
+        })
       );
 
       console.log(structuredTransactions);
@@ -184,7 +185,7 @@ export const TransactionProvider = ({ children }) => {
     try {
       if (!ethereum) return alert("Please install Metamask first");
 
-      const { addressTo, amount, keyword, message,hashFile } = formData;
+      const { addressTo, amount, keyword, message, hashFile } = formData;
       const transactionContract = getEthereumContract();
       const parsedAmount = ethers.utils.parseEther(amount);
 
@@ -229,6 +230,34 @@ export const TransactionProvider = ({ children }) => {
     }
   };
 
+  const validate = async (index) => {
+    try {
+      if (!ethereum) return alert("Please install Metamask first");
+
+      let dContinue = confirm("Apakah anda yakin ingin melakukan validasi data ini?");
+      if (!dContinue) {
+        return;
+      }
+      const transactionContract = getEthereumContract();
+
+      const transactionHash = await transactionContract.validate(
+        index, true
+      );
+
+      setIsLoading(true);
+      console.log(`Loading - ${transactionHash.transactionHash}`);
+      await transactionHash.wait();
+      setIsLoading(false);
+      console.log(`Success - ${transactionHash.transactionHash}`);
+
+      window.location.reload()
+    } catch (error) {
+      console.log(error);
+
+      throw new Error("No ETH object.");
+    }
+  };
+
   useEffect(() => {
     checkIfWalletIsConnected();
     checkIfTransactionExist();
@@ -246,6 +275,7 @@ export const TransactionProvider = ({ children }) => {
         transactions,
         captureFile,
         handleSubmit,
+        validate,
         isLoading
       }}
     >

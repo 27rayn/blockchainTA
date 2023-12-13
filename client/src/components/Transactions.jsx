@@ -3,11 +3,9 @@ import React, { useContext } from "react";
 import { TransactionContext } from "../context/TransactionContext";
 
 // import useFetch from "../hooks/useFetch";
-import dummyData from "../utils/dummyData";
 
-import { shortenAddress } from "../utils/shortenedAddress";
-import useFetch from "../hooks/useFetch";
 import useImage from "../hooks/getFile";
+import { shortenAddress } from "../utils/shortenedAddress";
 
 const TransactionCard = ({
   addressTo,
@@ -17,10 +15,14 @@ const TransactionCard = ({
   keyword,
   amount,
   // url,
-  hashFile
+  hashFile,
+  isValid,
+  currentAccount,
+  validate,
+  index,
 }) => {
   const fileUrl = useImage({ hashFile });
-
+  
   return (
     <div
       className="bg-[#181918] m-4 flex flex-1 
@@ -56,8 +58,17 @@ const TransactionCard = ({
               <br />
               <p className="text-white text-base">Product Name: {keyword}</p>
               <p className="text-white text-base">Certificate ID: {message}</p>
+              <p className="text-white text-base">Validation Status: {isValid ? 'Telah Tervalidasi' : 'Tidak Tervalidasi'}</p>
             </>
           )}
+          {(!isValid && currentAccount === addressTo.toLowerCase()) && <button
+            type="button"
+            onClick={() => validate(index)}
+            className="text-white w-full mt-2 border-[1px] p-2 border-[#3d4f7c] rounded-full cursor-pointer"
+          >
+            Validate
+          </button>
+          }
         </div>
         <img
           src={fileUrl || hashFile}
@@ -68,12 +79,14 @@ const TransactionCard = ({
         <div className="bg-black p-3 px-5 w-max rounded-3xl -mt-5 shadow-2xl">
           <p className="text-[#37C7DA]">{timestamp}</p>
         </div>
+
+
       </div>
     </div>
   );
 };
 const Transactions = () => {
-  const { currentAccount, transactions } = useContext(TransactionContext);
+  const { currentAccount, transactions, validate } = useContext(TransactionContext);
   return (
     <div className="flex w-full justify-center items-center 2xl:px-20 gradient-bg-transactions">
       <div className="flex flex-col md:p-12 py-12 px-4">
@@ -87,9 +100,11 @@ const Transactions = () => {
           </h3>
         )}
         <div className="flex flex-wrap justify-center items-center mt-10">
-          {transactions.reverse().map((transaction, i) => (
-            <TransactionCard key={i} {...transaction} />
-          ))}
+          {transactions.reverse().map((transaction, i) => {
+            return (
+              <TransactionCard key={i} {...transaction} currentAccount={currentAccount} validate={validate} index={i} />
+            )
+          })}
         </div>
       </div>
     </div>

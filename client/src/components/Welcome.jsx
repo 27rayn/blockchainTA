@@ -1,7 +1,6 @@
-import React, { useContext,useState } from "react";
-import { AiFillPlayCircle } from "react-icons/ai";
-import { SiEthereum } from "react-icons/si";
+import React, { useContext } from "react";
 import { BsInfoCircle } from "react-icons/bs";
+import { SiEthereum } from "react-icons/si";
 
 import { TransactionContext } from "../context/TransactionContext";
 import { Loader } from "./";
@@ -26,7 +25,7 @@ const Input = ({ placeholder, name, type, value, handleChange }) => (
 
 
 const Welcome = () => {
-  
+
   const {
     connectWallet,
     currentAccount,
@@ -80,9 +79,9 @@ const Welcome = () => {
               </div>
               <div>
                 <p className="text-white font-light text-sm">
-                Your Address
-                <br />
-                {shortenAddress(currentAccount)}
+                  Your Address
+                  <br />
+                  {shortenAddress(currentAccount)}
                 </p>
                 <p className="text-white font-medium text-lg mt-1">Ethereum</p>
               </div>
@@ -93,7 +92,9 @@ const Welcome = () => {
               placeholder="Address To"
               name="addressTo"
               type="text"
+              readOnly={true}
               handleChange={handleChange}
+              value={"0x096c74784761571dBaAB7C44eC650C53975e0f26"}
             />
             <Input
               placeholder="Amount (ETH)"
