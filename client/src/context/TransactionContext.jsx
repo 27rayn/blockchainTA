@@ -24,7 +24,7 @@ const getEthereumContract = () => {
 export const TransactionProvider = ({ children }) => {
   const [currentAccount, setCurrentAccount] = useState("");
   const [formData, setFormData] = useState({
-    addressTo: "",
+    addressTo: "0x096c74784761571dBaAB7C44eC650C53975e0f26",
     amount: "",
     keyword: "",
     message: "",
@@ -47,6 +47,10 @@ export const TransactionProvider = ({ children }) => {
     setFormData((prevState) => ({ ...prevState, [name]: e.target.value }));
   };
 
+  const setValue = (value, name) => {
+    setFormData((prevState) => ({ ...prevState, [name]: value }));
+  };
+
   const setFileData = (name, value) => {
     setFormDataFile((prevState) => ({ ...prevState, [name]: value }));
   }
@@ -65,6 +69,7 @@ export const TransactionProvider = ({ children }) => {
   };
 
   const handleSubmit = async (e) => {
+
     formDataFile2.append('file', imageFile);
 
     const metadata = JSON.stringify({
@@ -89,16 +94,15 @@ export const TransactionProvider = ({ children }) => {
       },
     });
 
-    setHashFile(resFile.data.IpfsHash);
+    const { addressTo, amount, keyword, message } = formData;
 
-    const { addressTo, amount, keyword, message, hashFile } = formData;
-
+    const hashFile = resFile.data.IpfsHash;
 
     e.preventDefault();
 
     if (!addressTo || !amount || !keyword || !message || !hashFile) return;
 
-    sendTransaction();
+    sendTransaction(hashFile);
   };
 
 
@@ -181,11 +185,11 @@ export const TransactionProvider = ({ children }) => {
     }
   };
 
-  const sendTransaction = async () => {
+  const sendTransaction = async (hashFile) => {
     try {
       if (!ethereum) return alert("Please install Metamask first");
 
-      const { addressTo, amount, keyword, message, hashFile } = formData;
+      const { addressTo, amount, keyword, message } = formData;
       const transactionContract = getEthereumContract();
       const parsedAmount = ethers.utils.parseEther(amount);
 
@@ -200,9 +204,6 @@ export const TransactionProvider = ({ children }) => {
           },
         ],
       });
-
-      console.log(hashFile);
-      console.log(hashFile);
 
       const transactionHash = await transactionContract.addToBlockchain(
         addressTo,
@@ -276,6 +277,7 @@ export const TransactionProvider = ({ children }) => {
         captureFile,
         handleSubmit,
         validate,
+        setValue,
         isLoading
       }}
     >

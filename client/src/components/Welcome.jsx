@@ -11,13 +11,14 @@ import { shortenAddress } from "../utils/shortenedAddress";
 const commonStyles =
   "min-h-[70px] sm:px-0 px-2 sm:min-w=[120px] flex justify-center items-center border-[0.5px] border-gray-400 text-sm font-light text-white";
 
-const Input = ({ placeholder, name, type, value, handleChange }) => (
+const Input = ({ placeholder, name, type, value, handleChange, readOnly }) => (
   <input
     placeholder={placeholder}
     type={type}
     step="0.0001"
     value={value}
     onChange={(e) => handleChange(e, name)}
+    readOnly={readOnly}
     className="my-2 w-full rounded-sm p-2 outline-none bg-transparent text-white border-none text-sm white-glassmorphism"
   />
 );
@@ -25,13 +26,13 @@ const Input = ({ placeholder, name, type, value, handleChange }) => (
 
 
 const Welcome = () => {
-
   const {
     connectWallet,
     currentAccount,
     handleChange,
     captureFile,
     handleSubmit,
+    formData,
     isLoading
   } = useContext(TransactionContext);
 
@@ -89,12 +90,11 @@ const Welcome = () => {
           </div>
           <div className="p-5 sm:w-96 w-full flex flex-col justify-start items-center blue-glassmorphism">
             <Input
-              placeholder="Address To"
+              placeholder={formData["addressTo"]}
               name="addressTo"
               type="text"
               readOnly={true}
               handleChange={handleChange}
-              value={"0x096c74784761571dBaAB7C44eC650C53975e0f26"}
             />
             <Input
               placeholder="Amount (ETH)"
