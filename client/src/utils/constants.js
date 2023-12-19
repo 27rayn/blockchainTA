@@ -4,7 +4,7 @@ import abi from './Transactions.json';
 
 export const fileABI = aji.abi;
 
-export const fileAddress = '0x1a5455402c2e15b6fC799C95E3C63f06E42c0522';
+export const fileAddress = '0xA6c5bfc04Ad3516C15d8d1502D102d316E21b0eC';
 
 
 
